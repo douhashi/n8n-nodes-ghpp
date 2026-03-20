@@ -31,29 +31,34 @@ n8n の Cron トリガーと組み合わせ、定期的に `ghpp promote` を実
 
 ```json
 {
-  "summary": { "promoted": 4, "skipped": 2, "total": 6 },
-  "phases": {
-    "plan": {
-      "summary": { "promoted": 3, "skipped": 1, "total": 4 },
-      "results": [
-        {
-          "item": { "id": "...", "title": "Issue title", "url": "https://...", "status": "Backlog" },
-          "action": "promoted",
-          "to_status": "Plan"
-        }
-      ]
-    },
-    "doing": {
-      "summary": { "promoted": 1, "skipped": 1, "total": 2 },
-      "results": [
-        {
-          "item": { "id": "...", "title": "...", "url": "https://...", "status": "Ready" },
-          "action": "skipped",
-          "reason": "repository already has doing issue"
-        }
-      ]
-    }
-  }
+	"summary": { "promoted": 4, "skipped": 2, "total": 6 },
+	"phases": {
+		"plan": {
+			"summary": { "promoted": 3, "skipped": 1, "total": 4 },
+			"results": [
+				{
+					"item": {
+						"id": "...",
+						"title": "Issue title",
+						"url": "https://...",
+						"status": "Backlog"
+					},
+					"action": "promoted",
+					"to_status": "Plan"
+				}
+			]
+		},
+		"doing": {
+			"summary": { "promoted": 1, "skipped": 1, "total": 2 },
+			"results": [
+				{
+					"item": { "id": "...", "title": "...", "url": "https://...", "status": "Ready" },
+					"action": "skipped",
+					"reason": "repository already has doing issue"
+				}
+			]
+		}
+	}
 }
 ```
 

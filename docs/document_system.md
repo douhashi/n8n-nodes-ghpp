@@ -30,6 +30,7 @@ docs/
   - A brief description for each
 
 Example:
+
 ```markdown
 # Development Documents
 
@@ -45,14 +46,16 @@ The AI system does **not directly reference documents**. Instead, it recognizes 
 @docs/development/INDEX.md
 ```
 
-This tells the AI:  
-- The document exists  
-- It may be referenced when needed  
+This tells the AI:
+
+- The document exists
+- It may be referenced when needed
 - But the AI should **autonomously decide** which document to consult
 
 ## Purpose
 
 The Document System allows AI agents to:
+
 - Navigate structured, maintainable documentation
 - Understand the project context through index files
 - Autonomously choose and reference relevant documents during tasks
