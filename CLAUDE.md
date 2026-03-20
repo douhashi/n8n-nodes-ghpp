@@ -15,3 +15,7 @@
 
 ## Documents
 
+- Business: @docs/business/INDEX.md
+- Development: @docs/development/INDEX.md
+- Operations: @docs/operations/INDEX.md
+
