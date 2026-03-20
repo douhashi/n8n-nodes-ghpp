@@ -35,9 +35,16 @@ function downloadFile(url: string, dest: string, redirectCount = 0): Promise<voi
 		}
 		https
 			.get(url, (res) => {
-				if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+				if (
+					res.statusCode &&
+					res.statusCode >= 300 &&
+					res.statusCode < 400 &&
+					res.headers.location
+				) {
 					res.resume();
-					downloadFile(res.headers.location, dest, redirectCount + 1).then(resolve).catch(reject);
+					downloadFile(res.headers.location, dest, redirectCount + 1)
+						.then(resolve)
+						.catch(reject);
 					return;
 				}
 				if (res.statusCode !== 200) {
@@ -163,7 +170,10 @@ export class Ghpp implements INodeType {
 			await ensureBinary();
 		} catch (error: unknown) {
 			const err = error as { message?: string };
-			throw new NodeOperationError(this.getNode(), `Failed to install ghpp binary: ${err.message || 'Unknown error'}`);
+			throw new NodeOperationError(
+				this.getNode(),
+				`Failed to install ghpp binary: ${err.message || 'Unknown error'}`,
+			);
 		}
 
 		const credentials = await this.getCredentials('ghppApi');
