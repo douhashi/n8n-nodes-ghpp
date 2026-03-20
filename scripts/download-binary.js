@@ -11,7 +11,11 @@ const SUPPORTED = [
 	{ os: 'linux', arch: 'arm64' },
 	{ os: 'darwin', arch: 'arm64' },
 ];
-const BASE_URL = 'https://github.com/douhashi/ghpp/releases/latest/download';
+const GHPP_VERSION = require(path.join(__dirname, '..', 'package.json')).ghpp?.version || 'latest';
+const BASE_URL =
+	GHPP_VERSION === 'latest'
+		? 'https://github.com/douhashi/ghpp/releases/latest/download'
+		: `https://github.com/douhashi/ghpp/releases/download/v${GHPP_VERSION}`;
 const MAX_REDIRECTS = 5;
 
 /**

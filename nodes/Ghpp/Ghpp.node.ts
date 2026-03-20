@@ -20,8 +20,26 @@ const binaryPath = path.join(binDir, 'ghpp');
 
 const PLATFORM_MAP: Record<string, string> = { linux: 'linux', darwin: 'darwin' };
 const ARCH_MAP: Record<string, string> = { x64: 'amd64', arm64: 'arm64' };
-const BASE_URL = 'https://github.com/douhashi/ghpp/releases/latest/download';
 const MAX_REDIRECTS = 5;
+
+function getGhppVersion(): string {
+	const pkgPath = path.join(__dirname, '../../../package.json');
+	try {
+		const pkgJson = JSON.parse(fs.readFileSync(pkgPath, 'utf8')) as {
+			ghpp?: { version?: string };
+		};
+		return pkgJson.ghpp?.version || 'latest';
+	} catch {
+		return 'latest';
+	}
+}
+
+function getBaseUrl(): string {
+	const version = getGhppVersion();
+	return version === 'latest'
+		? 'https://github.com/douhashi/ghpp/releases/latest/download'
+		: `https://github.com/douhashi/ghpp/releases/download/v${version}`;
+}
 
 function downloadFile(url: string, dest: string, redirectCount = 0): Promise<void> {
 	return new Promise((resolve, reject) => {
@@ -78,7 +96,7 @@ async function ensureBinary(): Promise<void> {
 	const tarName = `ghpp_${mappedOS}_${mappedArch}.tar.gz`;
 	const tarPath = path.join(binDir, '.ghpp.tar.gz');
 
-	await downloadFile(`${BASE_URL}/${tarName}`, tarPath);
+	await downloadFile(`${getBaseUrl()}/${tarName}`, tarPath);
 	execFileSync('tar', ['xzf', tarPath, '-C', binDir]);
 	fs.chmodSync(binaryPath, 0o755);
 	fs.unlinkSync(tarPath);
