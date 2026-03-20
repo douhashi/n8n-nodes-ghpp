@@ -38,11 +38,11 @@ n8n-nodes-ghpp/
 
 ### 対応プラットフォーム
 
-| OS | アーキテクチャ |
-|---|---|
-| linux | amd64 |
-| linux | arm64 |
-| darwin | arm64 |
+| OS     | アーキテクチャ |
+| ------ | -------------- |
+| linux  | amd64          |
+| linux  | arm64          |
+| darwin | arm64          |
 
 - 非対応プラットフォームの場合は警告を出して正常終了（exit 0）
 - `bin/ghpp` が既に存在する場合はダウンロードをスキップ
@@ -51,41 +51,41 @@ n8n-nodes-ghpp/
 
 ### GhppApi
 
-| フィールド | 型 | 説明 |
-|---|---|---|
-| `token` | string（password） | GitHub Personal Access Token（repo + project スコープ） |
+| フィールド | 型                 | 説明                                                    |
+| ---------- | ------------------ | ------------------------------------------------------- |
+| `token`    | string（password） | GitHub Personal Access Token（repo + project スコープ） |
 
 ## ノード仕様
 
 ### 基本情報
 
-| 項目 | 値 |
-|---|---|
-| 表示名 | GHPP |
-| name | ghpp |
-| グループ | transform |
+| 項目     | 値             |
+| -------- | -------------- |
+| 表示名   | GHPP           |
+| name     | ghpp           |
+| グループ | transform      |
 | コマンド | `ghpp promote` |
 
 ### 必須パラメータ
 
-| 表示名 | name | 型 | 対応オプション |
-|---|---|---|---|
-| Owner | `owner` | string | `--owner` |
+| 表示名         | name            | 型     | 対応オプション     |
+| -------------- | --------------- | ------ | ------------------ |
+| Owner          | `owner`         | string | `--owner`          |
 | Project Number | `projectNumber` | number | `--project-number` |
 
 ### 任意パラメータ
 
-| 表示名 | name | 型 | デフォルト | 対応オプション |
-|---|---|---|---|---|
-| Plan Limit | `planLimit` | number | `3` | `--plan-limit` |
+| 表示名     | name        | 型     | デフォルト | 対応オプション |
+| ---------- | ----------- | ------ | ---------- | -------------- |
+| Plan Limit | `planLimit` | number | `3`        | `--plan-limit` |
 
 ### ステータス設定（collection 型: Status Settings）
 
-| 表示名 | name | 型 | デフォルト | 対応オプション |
-|---|---|---|---|---|
-| Status Inbox | `statusInbox` | string | `Backlog` | `--status-inbox` |
-| Status Plan | `statusPlan` | string | `Plan` | `--status-plan` |
-| Status Ready | `statusReady` | string | `Ready` | `--status-ready` |
+| 表示名       | name          | 型     | デフォルト    | 対応オプション   |
+| ------------ | ------------- | ------ | ------------- | ---------------- |
+| Status Inbox | `statusInbox` | string | `Backlog`     | `--status-inbox` |
+| Status Plan  | `statusPlan`  | string | `Plan`        | `--status-plan`  |
+| Status Ready | `statusReady` | string | `Ready`       | `--status-ready` |
 | Status Doing | `statusDoing` | string | `In progress` | `--status-doing` |
 
 ### 出力

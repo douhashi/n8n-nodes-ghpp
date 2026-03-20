@@ -1,0 +1,57 @@
+{
+	"name": "n8n-nodes-ghpp",
+	"version": "0.1.0",
+	"description": "n8n community node for ghpp (GitHub Project Promoter)",
+	"license": "MIT",
+	"homepage": "https://github.com/douhashi/n8n-nodes-ghpp",
+	"keywords": [
+		"n8n-community-node-package"
+	],
+	"author": {
+		"name": "douhashi"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/douhashi/n8n-nodes-ghpp.git"
+	},
+	"scripts": {
+		"build": "n8n-node build",
+		"build:watch": "tsc --watch",
+		"dev": "n8n-node dev",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"format": "prettier --check .",
+		"format:fix": "prettier --write .",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"typecheck": "tsc --noEmit",
+		"postinstall": "node scripts/download-binary.js",
+		"prepublishOnly": "n8n-node prerelease"
+	},
+	"files": [
+		"dist",
+		"scripts",
+		"bin"
+	],
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"strict": false,
+		"credentials": [
+			"dist/credentials/GhppApi.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/Ghpp/Ghpp.node.js"
+		]
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "^0.23.0",
+		"eslint": "^9.0.0",
+		"prettier": "^3.0.0",
+		"typescript": "^5.0.0",
+		"vitest": "^3.0.0",
+		"@vitest/coverage-v8": "^3.0.0"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	}
+}
