@@ -12,7 +12,7 @@ import type {
 import { NodeOperationError } from 'n8n-workflow';
 
 const execFileAsync = promisify(execFile);
-const binaryPath = path.join(__dirname, '../../bin/ghpp');
+const binaryPath = path.join(__dirname, '../../../bin/ghpp');
 
 export class Ghpp implements INodeType {
 	description: INodeTypeDescription = {
