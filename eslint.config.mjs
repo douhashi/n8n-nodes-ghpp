@@ -1,7 +1,7 @@
-import { config } from '@n8n/node-cli/eslint';
+import { configWithoutCloudSupport } from '@n8n/node-cli/eslint';
 
 export default [
-	...config,
+	...configWithoutCloudSupport,
 	{
 		ignores: ['vitest.config.ts'],
 	},
