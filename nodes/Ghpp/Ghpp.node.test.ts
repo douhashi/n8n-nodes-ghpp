@@ -22,14 +22,20 @@ vi.mock('fs', async (importOriginal) => {
 const mockedExecFile = vi.mocked(execFile);
 
 function createMockExecuteFunctions(overrides?: {
+	operation?: string;
 	planLimit?: number;
+	staleThreshold?: string;
+	dryRun?: boolean;
 	statusSettings?: Record<string, string>;
 }): IExecuteFunctions {
 	const credentials = { token: 'ghp_test_token' };
 	const params: Record<string, unknown> = {
+		operation: overrides?.operation ?? 'promote',
 		owner: 'test-org',
 		projectNumber: 42,
 		planLimit: overrides?.planLimit ?? 3,
+		staleThreshold: overrides?.staleThreshold ?? '2h',
+		dryRun: overrides?.dryRun ?? false,
 		statusSettings: overrides?.statusSettings ?? {},
 	};
 
@@ -41,6 +47,13 @@ function createMockExecuteFunctions(overrides?: {
 	} as unknown as IExecuteFunctions;
 }
 
+function setupExecFileSuccess(stdout = '{}') {
+	mockedExecFile.mockImplementation((_cmd, _args, callback: unknown) => {
+		(callback as (...args: unknown[]) => void)(null, { stdout, stderr: '' });
+		return undefined as never;
+	});
+}
+
 describe('Ghpp.node', () => {
 	const ghpp = new Ghpp();
 
@@ -50,13 +63,7 @@ describe('Ghpp.node', () => {
 
 	it('should parse JSON response from stdout', async () => {
 		const expected = { promoted: 3, items: ['a', 'b', 'c'] };
-		mockedExecFile.mockImplementation((_cmd, _args, callback: unknown) => {
-			(callback as (...args: unknown[]) => void)(null, {
-				stdout: JSON.stringify(expected),
-				stderr: '',
-			});
-			return undefined as never;
-		});
+		setupExecFileSuccess(JSON.stringify(expected));
 
 		const mockFns = createMockExecuteFunctions();
 		const result = await ghpp.execute.call(mockFns);
@@ -91,10 +98,7 @@ describe('Ghpp.node', () => {
 	});
 
 	it('should include --plan-limit and --status-* flags when non-default values are set', async () => {
-		mockedExecFile.mockImplementation((_cmd, _args, callback: unknown) => {
-			(callback as (...args: unknown[]) => void)(null, { stdout: '{}', stderr: '' });
-			return undefined as never;
-		});
+		setupExecFileSuccess();
 
 		const mockFns = createMockExecuteFunctions({
 			planLimit: 5,
@@ -121,10 +125,7 @@ describe('Ghpp.node', () => {
 	});
 
 	it('should omit --plan-limit and --status-* flags when default values are used', async () => {
-		mockedExecFile.mockImplementation((_cmd, _args, callback: unknown) => {
-			(callback as (...args: unknown[]) => void)(null, { stdout: '{}', stderr: '' });
-			return undefined as never;
-		});
+		setupExecFileSuccess();
 
 		const mockFns = createMockExecuteFunctions();
 		await ghpp.execute.call(mockFns);
@@ -135,5 +136,72 @@ describe('Ghpp.node', () => {
 		expect(callArgs).not.toContain('--status-plan');
 		expect(callArgs).not.toContain('--status-ready');
 		expect(callArgs).not.toContain('--status-doing');
+	});
+
+	it('should use demote as first arg when operation is demote', async () => {
+		setupExecFileSuccess();
+
+		const mockFns = createMockExecuteFunctions({ operation: 'demote' });
+		await ghpp.execute.call(mockFns);
+
+		const callArgs = mockedExecFile.mock.calls[0][1] as string[];
+		expect(callArgs[0]).toBe('demote');
+		expect(callArgs).not.toContain('--plan-limit');
+	});
+
+	it('should include --stale-threshold when demote with non-default value', async () => {
+		setupExecFileSuccess();
+
+		const mockFns = createMockExecuteFunctions({
+			operation: 'demote',
+			staleThreshold: '30m',
+		});
+		await ghpp.execute.call(mockFns);
+
+		const callArgs = mockedExecFile.mock.calls[0][1] as string[];
+		expect(callArgs).toContain('--stale-threshold');
+		expect(callArgs).toContain('30m');
+	});
+
+	it('should omit --stale-threshold when demote with default value', async () => {
+		setupExecFileSuccess();
+
+		const mockFns = createMockExecuteFunctions({ operation: 'demote' });
+		await ghpp.execute.call(mockFns);
+
+		const callArgs = mockedExecFile.mock.calls[0][1] as string[];
+		expect(callArgs).not.toContain('--stale-threshold');
+	});
+
+	it('should include --dry-run when dryRun is true for promote', async () => {
+		setupExecFileSuccess();
+
+		const mockFns = createMockExecuteFunctions({ operation: 'promote', dryRun: true });
+		await ghpp.execute.call(mockFns);
+
+		const callArgs = mockedExecFile.mock.calls[0][1] as string[];
+		expect(callArgs[0]).toBe('promote');
+		expect(callArgs).toContain('--dry-run');
+	});
+
+	it('should omit --dry-run when dryRun is false for promote', async () => {
+		setupExecFileSuccess();
+
+		const mockFns = createMockExecuteFunctions({ operation: 'promote', dryRun: false });
+		await ghpp.execute.call(mockFns);
+
+		const callArgs = mockedExecFile.mock.calls[0][1] as string[];
+		expect(callArgs).not.toContain('--dry-run');
+	});
+
+	it('should include --dry-run when dryRun is true for demote', async () => {
+		setupExecFileSuccess();
+
+		const mockFns = createMockExecuteFunctions({ operation: 'demote', dryRun: true });
+		await ghpp.execute.call(mockFns);
+
+		const callArgs = mockedExecFile.mock.calls[0][1] as string[];
+		expect(callArgs[0]).toBe('demote');
+		expect(callArgs).toContain('--dry-run');
 	});
 });

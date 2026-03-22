@@ -109,14 +109,35 @@ export class Ghpp implements INodeType {
 		icon: 'file:ghpp.svg',
 		group: ['transform'],
 		version: 1,
-		subtitle: 'ghpp promote',
-		description: 'Run ghpp promote to manage GitHub Project items',
+		subtitle: '={{$parameter["operation"] === "demote" ? "ghpp demote" : "ghpp promote"}}',
+		description: 'Run ghpp promote/demote to manage GitHub Project Issue items',
 		defaults: { name: 'GHPP' },
 		usableAsTool: true,
 		inputs: ['main'],
 		outputs: ['main'],
 		credentials: [{ name: 'ghppApi', required: true }],
 		properties: [
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				options: [
+					{
+						name: 'Promote',
+						value: 'promote',
+						description: 'Promote Issue items to the next status',
+						action: 'Promote issue items to the next status',
+					},
+					{
+						name: 'Demote',
+						value: 'demote',
+						description: 'Demote stale Issue items to the previous status',
+						action: 'Demote stale issue items to the previous status',
+					},
+				],
+				default: 'promote',
+			},
 			{
 				displayName: 'Owner',
 				name: 'owner',
@@ -142,6 +163,30 @@ export class Ghpp implements INodeType {
 				default: 3,
 				typeOptions: { minValue: 1 },
 				description: 'Maximum number of items to promote to Plan',
+				displayOptions: {
+					show: {
+						operation: ['promote'],
+					},
+				},
+			},
+			{
+				displayName: 'Stale Threshold',
+				name: 'staleThreshold',
+				type: 'string',
+				default: '2h',
+				description: 'Duration threshold for considering an item stale (e.g. "2h", "30m")',
+				displayOptions: {
+					show: {
+						operation: ['demote'],
+					},
+				},
+			},
+			{
+				displayName: 'Dry Run',
+				name: 'dryRun',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to run in dry-run mode (no changes will be made)',
 			},
 			{
 				displayName: 'Status Settings',
@@ -199,9 +244,10 @@ export class Ghpp implements INodeType {
 		const returnData: INodeExecutionData[] = [];
 
 		for (let i = 0; i < items.length; i++) {
+			const operation = this.getNodeParameter('operation', i) as string;
 			const owner = this.getNodeParameter('owner', i) as string;
 			const projectNumber = this.getNodeParameter('projectNumber', i) as number;
-			const planLimit = this.getNodeParameter('planLimit', i) as number;
+			const dryRun = this.getNodeParameter('dryRun', i) as boolean;
 			const statusSettings = this.getNodeParameter('statusSettings', i) as {
 				statusInbox?: string;
 				statusPlan?: string;
@@ -210,7 +256,7 @@ export class Ghpp implements INodeType {
 			};
 
 			const args = [
-				'promote',
+				operation,
 				'--owner',
 				owner,
 				'--project-number',
@@ -219,8 +265,22 @@ export class Ghpp implements INodeType {
 				String(credentials.token),
 			];
 
-			if (planLimit !== 3) {
-				args.push('--plan-limit', String(planLimit));
+			if (operation === 'promote') {
+				const planLimit = this.getNodeParameter('planLimit', i) as number;
+				if (planLimit !== 3) {
+					args.push('--plan-limit', String(planLimit));
+				}
+			}
+
+			if (operation === 'demote') {
+				const staleThreshold = this.getNodeParameter('staleThreshold', i) as string;
+				if (staleThreshold !== '2h') {
+					args.push('--stale-threshold', staleThreshold);
+				}
+			}
+
+			if (dryRun) {
+				args.push('--dry-run');
 			}
 
 			if (statusSettings.statusInbox !== undefined) {

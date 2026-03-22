@@ -59,12 +59,19 @@ n8n-nodes-gh-project-promoter/
 
 ### 基本情報
 
-| 項目     | 値             |
-| -------- | -------------- |
-| 表示名   | GHPP           |
-| name     | ghpp           |
-| グループ | transform      |
-| コマンド | `ghpp promote` |
+| 項目     | 値                             |
+| -------- | ------------------------------ |
+| 表示名   | GHPP                           |
+| name     | ghpp                           |
+| グループ | transform                      |
+| コマンド | `ghpp promote` / `ghpp demote` |
+
+### Operation
+
+| 値        | 説明                                                |
+| --------- | --------------------------------------------------- |
+| `promote` | Issue アイテムを次のステータスに昇格させる          |
+| `demote`  | 停滞した Issue アイテムを前のステータスに降格させる |
 
 ### 必須パラメータ
 
@@ -75,9 +82,11 @@ n8n-nodes-gh-project-promoter/
 
 ### 任意パラメータ
 
-| 表示名     | name        | 型     | デフォルト | 対応オプション |
-| ---------- | ----------- | ------ | ---------- | -------------- |
-| Plan Limit | `planLimit` | number | `3`        | `--plan-limit` |
+| 表示名          | name             | 型      | デフォルト | 対応オプション      | 表示条件         |
+| --------------- | ---------------- | ------- | ---------- | ------------------- | ---------------- |
+| Plan Limit      | `planLimit`      | number  | `3`        | `--plan-limit`      | promote 時のみ   |
+| Stale Threshold | `staleThreshold` | string  | `2h`       | `--stale-threshold` | demote 時のみ    |
+| Dry Run         | `dryRun`         | boolean | `false`    | `--dry-run`         | 共通（常に表示） |
 
 ### ステータス設定（collection 型: Status Settings）
 
@@ -90,7 +99,7 @@ n8n-nodes-gh-project-promoter/
 
 ### 出力
 
-- `ghpp promote` の stdout を JSON パースして後続ノードの `json` フィールドに渡す
+- `ghpp promote` / `ghpp demote` の stdout を JSON パースして後続ノードの `json` フィールドに渡す
 - JSON パース失敗時は `{ raw: "..." }` にフォールバック
 
 ### エラーハンドリング
