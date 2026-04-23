@@ -189,6 +189,32 @@ export class Ghpp implements INodeType {
 				description: 'Whether to run in dry-run mode (no changes will be made)',
 			},
 			{
+				displayName: 'Promote Ready Enabled',
+				name: 'promoteReadyEnabled',
+				type: 'boolean',
+				default: false,
+				description:
+					'Whether to automatically promote items from Plan to Ready when they carry the planned label',
+				displayOptions: {
+					show: {
+						operation: ['promote'],
+					},
+				},
+			},
+			{
+				displayName: 'Planned Label',
+				name: 'plannedLabel',
+				type: 'string',
+				default: 'planned',
+				description: 'Label name that triggers the Plan -> Ready promotion',
+				displayOptions: {
+					show: {
+						operation: ['promote'],
+						promoteReadyEnabled: [true],
+					},
+				},
+			},
+			{
 				displayName: 'Status Settings',
 				name: 'statusSettings',
 				type: 'collection',
@@ -269,6 +295,19 @@ export class Ghpp implements INodeType {
 				const planLimit = this.getNodeParameter('planLimit', i) as number;
 				if (planLimit !== 3) {
 					args.push('--plan-limit', String(planLimit));
+				}
+
+				const promoteReadyEnabled = this.getNodeParameter(
+					'promoteReadyEnabled',
+					i,
+					false,
+				) as boolean;
+				if (promoteReadyEnabled) {
+					args.push('--promote-ready-enabled');
+					const plannedLabel = this.getNodeParameter('plannedLabel', i, 'planned') as string;
+					if (plannedLabel !== 'planned') {
+						args.push('--planned-label', plannedLabel);
+					}
 				}
 			}
 

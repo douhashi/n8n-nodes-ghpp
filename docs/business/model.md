@@ -11,6 +11,7 @@ n8n の Cron トリガーと組み合わせ、定期的に `ghpp promote` を実
 ```
 
 - Backlog の Issue を自動的に Plan に昇格（上限数制御あり）
+- Plan の Issue のうち指定ラベル付きのものを Ready に昇格（オプトイン）
 - Ready の Issue を自動的に In progress に昇格（リポジトリ単位で1件まで）
 - 昇格結果を Slack 等に通知可能
 
@@ -48,6 +49,10 @@ n8n の Cron トリガーと組み合わせ、定期的に `ghpp promote` を実
 				}
 			]
 		},
+		"ready": {
+			"summary": { "promoted": 0, "skipped": 0, "total": 0 },
+			"results": []
+		},
 		"doing": {
 			"summary": { "promoted": 1, "skipped": 1, "total": 2 },
 			"results": [
@@ -64,7 +69,8 @@ n8n の Cron トリガーと組み合わせ、定期的に `ghpp promote` を実
 
 ### JSON 出力の保証事項
 
-- `phases.plan` と `phases.doing` は常にキーが存在する（0件でも省略されない）
+- `phases.plan` / `phases.ready` / `phases.doing` は常にキーが存在する（0件でも省略されない）
+- `phases.ready` は `--promote-ready-enabled` が無効の場合は常に空
 - 各 `results` は0件の場合 `[]`（`null` ではない）
 - `action` は `"promoted"` または `"skipped"`
 - `"promoted"` の場合は `to_status` が付与される

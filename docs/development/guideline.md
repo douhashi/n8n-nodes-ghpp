@@ -82,11 +82,13 @@ n8n-nodes-gh-project-promoter/
 
 ### 任意パラメータ
 
-| 表示名          | name             | 型      | デフォルト | 対応オプション      | 表示条件         |
-| --------------- | ---------------- | ------- | ---------- | ------------------- | ---------------- |
-| Plan Limit      | `planLimit`      | number  | `3`        | `--plan-limit`      | promote 時のみ   |
-| Stale Threshold | `staleThreshold` | string  | `2h`       | `--stale-threshold` | demote 時のみ    |
-| Dry Run         | `dryRun`         | boolean | `false`    | `--dry-run`         | 共通（常に表示） |
+| 表示名                | name                  | 型      | デフォルト | 対応オプション            | 表示条件                                             |
+| --------------------- | --------------------- | ------- | ---------- | ------------------------- | ---------------------------------------------------- |
+| Plan Limit            | `planLimit`           | number  | `3`        | `--plan-limit`            | promote 時のみ                                       |
+| Stale Threshold       | `staleThreshold`      | string  | `2h`       | `--stale-threshold`       | demote 時のみ                                        |
+| Dry Run               | `dryRun`              | boolean | `false`    | `--dry-run`               | 共通（常に表示）                                     |
+| Promote Ready Enabled | `promoteReadyEnabled` | boolean | `false`    | `--promote-ready-enabled` | promote 時のみ                                       |
+| Planned Label         | `plannedLabel`        | string  | `planned`  | `--planned-label`         | promote 時かつ `promoteReadyEnabled=true` の場合のみ |
 
 ### ステータス設定（collection 型: Status Settings）
 

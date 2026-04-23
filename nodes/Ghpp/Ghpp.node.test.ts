@@ -26,6 +26,8 @@ function createMockExecuteFunctions(overrides?: {
 	planLimit?: number;
 	staleThreshold?: string;
 	dryRun?: boolean;
+	promoteReadyEnabled?: boolean;
+	plannedLabel?: string;
 	statusSettings?: Record<string, string>;
 }): IExecuteFunctions {
 	const credentials = { token: 'ghp_test_token' };
@@ -36,13 +38,19 @@ function createMockExecuteFunctions(overrides?: {
 		planLimit: overrides?.planLimit ?? 3,
 		staleThreshold: overrides?.staleThreshold ?? '2h',
 		dryRun: overrides?.dryRun ?? false,
+		promoteReadyEnabled: overrides?.promoteReadyEnabled ?? false,
+		plannedLabel: overrides?.plannedLabel ?? 'planned',
 		statusSettings: overrides?.statusSettings ?? {},
 	};
 
 	return {
 		getCredentials: vi.fn().mockResolvedValue(credentials),
 		getInputData: vi.fn().mockReturnValue([{ json: {} }]),
-		getNodeParameter: vi.fn().mockImplementation((name: string) => params[name]),
+		getNodeParameter: vi
+			.fn()
+			.mockImplementation((name: string, _i?: number, fallback?: unknown) =>
+				params[name] !== undefined ? params[name] : fallback,
+			),
 		getNode: vi.fn().mockReturnValue({ name: 'GHPP' }),
 	} as unknown as IExecuteFunctions;
 }
@@ -203,5 +211,61 @@ describe('Ghpp.node', () => {
 		const callArgs = mockedExecFile.mock.calls[0][1] as string[];
 		expect(callArgs[0]).toBe('demote');
 		expect(callArgs).toContain('--dry-run');
+	});
+
+	it('should omit --promote-ready-enabled and --planned-label when promoteReadyEnabled is false', async () => {
+		setupExecFileSuccess();
+
+		const mockFns = createMockExecuteFunctions({ operation: 'promote' });
+		await ghpp.execute.call(mockFns);
+
+		const callArgs = mockedExecFile.mock.calls[0][1] as string[];
+		expect(callArgs).not.toContain('--promote-ready-enabled');
+		expect(callArgs).not.toContain('--planned-label');
+	});
+
+	it('should include --promote-ready-enabled and omit --planned-label when default label is used', async () => {
+		setupExecFileSuccess();
+
+		const mockFns = createMockExecuteFunctions({
+			operation: 'promote',
+			promoteReadyEnabled: true,
+		});
+		await ghpp.execute.call(mockFns);
+
+		const callArgs = mockedExecFile.mock.calls[0][1] as string[];
+		expect(callArgs).toContain('--promote-ready-enabled');
+		expect(callArgs).not.toContain('--planned-label');
+	});
+
+	it('should include --planned-label when a non-default label is provided', async () => {
+		setupExecFileSuccess();
+
+		const mockFns = createMockExecuteFunctions({
+			operation: 'promote',
+			promoteReadyEnabled: true,
+			plannedLabel: 'ready-for-dev',
+		});
+		await ghpp.execute.call(mockFns);
+
+		const callArgs = mockedExecFile.mock.calls[0][1] as string[];
+		expect(callArgs).toContain('--promote-ready-enabled');
+		expect(callArgs).toContain('--planned-label');
+		expect(callArgs).toContain('ready-for-dev');
+	});
+
+	it('should omit --promote-ready-enabled when operation is demote', async () => {
+		setupExecFileSuccess();
+
+		const mockFns = createMockExecuteFunctions({
+			operation: 'demote',
+			promoteReadyEnabled: true,
+		});
+		await ghpp.execute.call(mockFns);
+
+		const callArgs = mockedExecFile.mock.calls[0][1] as string[];
+		expect(callArgs[0]).toBe('demote');
+		expect(callArgs).not.toContain('--promote-ready-enabled');
+		expect(callArgs).not.toContain('--planned-label');
 	});
 });

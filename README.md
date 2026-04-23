@@ -13,12 +13,13 @@ ghpp automates status transitions in GitHub Projects V2 by promoting items throu
 inbox -> plan -> ready -> doing
 ```
 
-| Phase | Transition         | Constraint                                         |
-| ----- | ------------------ | -------------------------------------------------- |
-| Plan  | `inbox` -> `plan`  | Up to the configured plan limit (default: 3)       |
-| Doing | `ready` -> `doing` | Skipped if the repository already has a doing item |
+| Phase | Transition         | Constraint                                                                    |
+| ----- | ------------------ | ----------------------------------------------------------------------------- |
+| Plan  | `inbox` -> `plan`  | Up to the configured plan limit (default: 3)                                  |
+| Ready | `plan` -> `ready`  | Opt-in; only items carrying the configured planned label (default: `planned`) |
+| Doing | `ready` -> `doing` | Skipped if the repository already has a doing item                            |
 
-> The `plan` -> `ready` transition is not managed by ghpp and should be done manually.
+> The `plan` -> `ready` transition is opt-in (disabled by default). Enable it with **Promote Ready Enabled** and attach the configured **Planned Label** to items that are ready to move on.
 
 ## Installation
 
@@ -74,9 +75,11 @@ The credential is automatically verified against the GitHub API (`GET /user`) up
 
 ### Optional
 
-| Parameter      | Type   | Default | Description                                |
-| -------------- | ------ | ------- | ------------------------------------------ |
-| **Plan Limit** | number | `3`     | Maximum number of items to promote to Plan |
+| Parameter                 | Type    | Default   | Description                                                                                       |
+| ------------------------- | ------- | --------- | ------------------------------------------------------------------------------------------------- |
+| **Plan Limit**            | number  | `3`       | Maximum number of items to promote to Plan                                                        |
+| **Promote Ready Enabled** | boolean | `false`   | Enable automatic `plan` -> `ready` promotion for items carrying the planned label (promote only)  |
+| **Planned Label**         | string  | `planned` | Label name that triggers the `plan` -> `ready` promotion (shown when Promote Ready Enabled is on) |
 
 ### Status Settings (collection)
 
@@ -112,6 +115,10 @@ The node outputs the JSON result of `ghpp promote`. Structure:
 				}
 			]
 		},
+		"ready": {
+			"summary": { "promoted": 0, "skipped": 0, "total": 0 },
+			"results": []
+		},
 		"doing": {
 			"summary": { "promoted": 1, "skipped": 1, "total": 2 },
 			"results": [
@@ -133,7 +140,8 @@ The node outputs the JSON result of `ghpp promote`. Structure:
 
 **Guarantees:**
 
-- `phases.plan` and `phases.doing` are always present (even when empty).
+- `phases.plan`, `phases.ready`, and `phases.doing` are always present (even when empty).
+- `phases.ready` results are empty unless **Promote Ready Enabled** is on.
 - `results` is `[]` when there are no items (never `null`).
 - `action` is either `"promoted"` or `"skipped"`.
 - `"promoted"` includes `to_status`; `"skipped"` includes `reason`.
