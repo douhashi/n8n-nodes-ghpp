@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-gh-project-promoter",
-	"version": "0.3.1",
+	"version": "0.3.2",
 	"description": "n8n community node for ghpp (GitHub Project Promoter)",
 	"license": "MIT",
 	"homepage": "https://github.com/douhashi/n8n-nodes-gh-project-promoter",
