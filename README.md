@@ -15,7 +15,7 @@ inbox -> plan -> ready -> doing
 
 | Phase | Transition         | Constraint                                                                    |
 | ----- | ------------------ | ----------------------------------------------------------------------------- |
-| Plan  | `inbox` -> `plan`  | Up to the configured plan limit (default: 3)                                  |
+| Plan  | `inbox` -> `plan`  | WIP cap on the Plan column (default: 3); existing `plan` items count          |
 | Ready | `plan` -> `ready`  | Opt-in; only items carrying the configured planned label (default: `planned`) |
 | Doing | `ready` -> `doing` | Skipped if the repository already has a doing item                            |
 
@@ -77,7 +77,7 @@ The credential is automatically verified against the GitHub API (`GET /user`) up
 
 | Parameter                 | Type    | Default   | Description                                                                                       |
 | ------------------------- | ------- | --------- | ------------------------------------------------------------------------------------------------- |
-| **Plan Limit**            | number  | `3`       | Maximum number of items to promote to Plan                                                        |
+| **Plan Limit**            | number  | `3`       | WIP cap for the Plan column. Existing items in Plan count against this limit; Ready/Doing do not. |
 | **Promote Ready Enabled** | boolean | `false`   | Enable automatic `plan` -> `ready` promotion for items carrying the planned label (promote only)  |
 | **Planned Label**         | string  | `planned` | Label name that triggers the `plan` -> `ready` promotion (shown when Promote Ready Enabled is on) |
 

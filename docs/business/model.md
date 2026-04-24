@@ -10,9 +10,10 @@ n8n の Cron トリガーと組み合わせ、定期的に `ghpp promote` を実
 [Cron Trigger] → [GHPP Node] → [通知 / ログ]
 ```
 
-- Backlog の Issue を自動的に Plan に昇格（上限数制御あり）
+- Backlog の Issue を Plan カラムの WIP 上限に達するまで自動昇格（既存の Plan 件数も含めて判定）
 - Plan の Issue のうち指定ラベル付きのものを Ready に昇格（オプトイン）
 - Ready の Issue を自動的に In progress に昇格（リポジトリ単位で1件まで）
+- 停滞した Doing Issue を `demote` で Ready に降格（Status 遷移時刻を基準に判定）
 - 昇格結果を Slack 等に通知可能
 
 ### 想定ユーザー
