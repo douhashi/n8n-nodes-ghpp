@@ -26,6 +26,7 @@ function createMockExecuteFunctions(overrides?: {
 	planLimit?: number;
 	staleThreshold?: string;
 	dryRun?: boolean;
+	promotePlanEnabled?: boolean;
 	promoteReadyEnabled?: boolean;
 	plannedLabel?: string;
 	statusSettings?: Record<string, string>;
@@ -38,6 +39,7 @@ function createMockExecuteFunctions(overrides?: {
 		planLimit: overrides?.planLimit ?? 3,
 		staleThreshold: overrides?.staleThreshold ?? '2h',
 		dryRun: overrides?.dryRun ?? false,
+		promotePlanEnabled: overrides?.promotePlanEnabled ?? true,
 		promoteReadyEnabled: overrides?.promoteReadyEnabled ?? false,
 		plannedLabel: overrides?.plannedLabel ?? 'planned',
 		statusSettings: overrides?.statusSettings ?? {},
@@ -267,5 +269,44 @@ describe('Ghpp.node', () => {
 		expect(callArgs[0]).toBe('demote');
 		expect(callArgs).not.toContain('--promote-ready-enabled');
 		expect(callArgs).not.toContain('--planned-label');
+	});
+
+	it('should omit --promote-plan-enabled when promotePlanEnabled is true (default)', async () => {
+		setupExecFileSuccess();
+
+		const mockFns = createMockExecuteFunctions({ operation: 'promote' });
+		await ghpp.execute.call(mockFns);
+
+		const callArgs = mockedExecFile.mock.calls[0][1] as string[];
+		expect(callArgs).not.toContain('--promote-plan-enabled=false');
+		expect(callArgs).not.toContain('--promote-plan-enabled');
+	});
+
+	it('should include --promote-plan-enabled=false when promotePlanEnabled is false', async () => {
+		setupExecFileSuccess();
+
+		const mockFns = createMockExecuteFunctions({
+			operation: 'promote',
+			promotePlanEnabled: false,
+		});
+		await ghpp.execute.call(mockFns);
+
+		const callArgs = mockedExecFile.mock.calls[0][1] as string[];
+		expect(callArgs).toContain('--promote-plan-enabled=false');
+	});
+
+	it('should omit --promote-plan-enabled when operation is demote', async () => {
+		setupExecFileSuccess();
+
+		const mockFns = createMockExecuteFunctions({
+			operation: 'demote',
+			promotePlanEnabled: false,
+		});
+		await ghpp.execute.call(mockFns);
+
+		const callArgs = mockedExecFile.mock.calls[0][1] as string[];
+		expect(callArgs[0]).toBe('demote');
+		expect(callArgs).not.toContain('--promote-plan-enabled=false');
+		expect(callArgs).not.toContain('--promote-plan-enabled');
 	});
 });

@@ -189,6 +189,19 @@ export class Ghpp implements INodeType {
 				description: 'Whether to run in dry-run mode (no changes will be made)',
 			},
 			{
+				displayName: 'Promote Plan Enabled',
+				name: 'promotePlanEnabled',
+				type: 'boolean',
+				default: true,
+				description:
+					'Whether to automatically promote items from Backlog to Plan. Disable to manage Plan entries manually.',
+				displayOptions: {
+					show: {
+						operation: ['promote'],
+					},
+				},
+			},
+			{
 				displayName: 'Promote Ready Enabled',
 				name: 'promoteReadyEnabled',
 				type: 'boolean',
@@ -295,6 +308,11 @@ export class Ghpp implements INodeType {
 				const planLimit = this.getNodeParameter('planLimit', i) as number;
 				if (planLimit !== 3) {
 					args.push('--plan-limit', String(planLimit));
+				}
+
+				const promotePlanEnabled = this.getNodeParameter('promotePlanEnabled', i, true) as boolean;
+				if (!promotePlanEnabled) {
+					args.push('--promote-plan-enabled=false');
 				}
 
 				const promoteReadyEnabled = this.getNodeParameter(

@@ -13,12 +13,14 @@ ghpp automates status transitions in GitHub Projects V2 by promoting items throu
 inbox -> plan -> ready -> doing
 ```
 
-| Phase | Transition         | Constraint                                                                    |
-| ----- | ------------------ | ----------------------------------------------------------------------------- |
-| Plan  | `inbox` -> `plan`  | WIP cap on the Plan column (default: 3); existing `plan` items count          |
-| Ready | `plan` -> `ready`  | Opt-in; only items carrying the configured planned label (default: `planned`) |
-| Doing | `ready` -> `doing` | Skipped if the repository already has a doing item                            |
+| Phase | Transition         | Constraint                                                                               |
+| ----- | ------------------ | ---------------------------------------------------------------------------------------- |
+| Plan  | `inbox` -> `plan`  | Enabled by default; WIP cap on the Plan column (default: 3); existing `plan` items count |
+| Ready | `plan` -> `ready`  | Opt-in; only items carrying the configured planned label (default: `planned`)            |
+| Doing | `ready` -> `doing` | Skipped if the repository already has a doing item                                       |
 
+> The `inbox` -> `plan` transition is enabled by default. Disable it with **Promote Plan Enabled = false** when you want to manage Plan entries manually.
+>
 > The `plan` -> `ready` transition is opt-in (disabled by default). Enable it with **Promote Ready Enabled** and attach the configured **Planned Label** to items that are ready to move on.
 
 ## Installation
@@ -75,11 +77,12 @@ The credential is automatically verified against the GitHub API (`GET /user`) up
 
 ### Optional
 
-| Parameter                 | Type    | Default   | Description                                                                                       |
-| ------------------------- | ------- | --------- | ------------------------------------------------------------------------------------------------- |
-| **Plan Limit**            | number  | `3`       | WIP cap for the Plan column. Existing items in Plan count against this limit; Ready/Doing do not. |
-| **Promote Ready Enabled** | boolean | `false`   | Enable automatic `plan` -> `ready` promotion for items carrying the planned label (promote only)  |
-| **Planned Label**         | string  | `planned` | Label name that triggers the `plan` -> `ready` promotion (shown when Promote Ready Enabled is on) |
+| Parameter                 | Type    | Default   | Description                                                                                           |
+| ------------------------- | ------- | --------- | ----------------------------------------------------------------------------------------------------- |
+| **Plan Limit**            | number  | `3`       | WIP cap for the Plan column. Existing items in Plan count against this limit; Ready/Doing do not.     |
+| **Promote Plan Enabled**  | boolean | `true`    | Enable automatic `inbox` -> `plan` promotion (promote only). Disable to manage Plan entries manually. |
+| **Promote Ready Enabled** | boolean | `false`   | Enable automatic `plan` -> `ready` promotion for items carrying the planned label (promote only)      |
+| **Planned Label**         | string  | `planned` | Label name that triggers the `plan` -> `ready` promotion (shown when Promote Ready Enabled is on)     |
 
 ### Status Settings (collection)
 
@@ -141,6 +144,7 @@ The node outputs the JSON result of `ghpp promote`. Structure:
 **Guarantees:**
 
 - `phases.plan`, `phases.ready`, and `phases.doing` are always present (even when empty).
+- `phases.plan` results are empty when **Promote Plan Enabled** is off.
 - `phases.ready` results are empty unless **Promote Ready Enabled** is on.
 - `results` is `[]` when there are no items (never `null`).
 - `action` is either `"promoted"` or `"skipped"`.
