@@ -84,6 +84,7 @@ n8n-nodes-gh-project-promoter/
 
 | 表示名                | name                  | 型      | デフォルト | 対応オプション                 | 表示条件                                             |
 | --------------------- | --------------------- | ------- | ---------- | ------------------------------ | ---------------------------------------------------- |
+| Workflow              | `workflow`            | options | `full`     | `--workflow <value>`           | 共通。`simple` のときだけ CLI 引数を付与             |
 | Plan Limit            | `planLimit`           | number  | `3`        | `--plan-limit`                 | promote 時のみ                                       |
 | Stale Threshold       | `staleThreshold`      | string  | `2h`       | `--stale-threshold`            | demote 時のみ                                        |
 | Dry Run               | `dryRun`              | boolean | `false`    | `--dry-run`                    | 共通（常に表示）                                     |

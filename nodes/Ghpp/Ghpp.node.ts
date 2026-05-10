@@ -139,6 +139,27 @@ export class Ghpp implements INodeType {
 				default: 'promote',
 			},
 			{
+				displayName: 'Workflow',
+				name: 'workflow',
+				type: 'options',
+				noDataExpression: true,
+				options: [
+					{
+						name: 'Full',
+						value: 'full',
+						description: 'Backlog -> Plan -> Ready -> In progress (default)',
+					},
+					{
+						name: 'Simple',
+						value: 'simple',
+						description:
+							'Backlog -> In progress only. Promote Plan/Ready Enabled flags are ignored.',
+					},
+				],
+				default: 'full',
+				description: 'Workflow mode that controls which transitions ghpp performs',
+			},
+			{
 				displayName: 'Owner',
 				name: 'owner',
 				type: 'string',
@@ -287,6 +308,7 @@ export class Ghpp implements INodeType {
 			const owner = this.getNodeParameter('owner', i) as string;
 			const projectNumber = this.getNodeParameter('projectNumber', i) as number;
 			const dryRun = this.getNodeParameter('dryRun', i) as boolean;
+			const workflow = this.getNodeParameter('workflow', i, 'full') as string;
 			const statusSettings = this.getNodeParameter('statusSettings', i) as {
 				statusInbox?: string;
 				statusPlan?: string;
@@ -303,6 +325,10 @@ export class Ghpp implements INodeType {
 				'--token',
 				String(credentials.token),
 			];
+
+			if (workflow !== 'full') {
+				args.push('--workflow', workflow);
+			}
 
 			if (operation === 'promote') {
 				const planLimit = this.getNodeParameter('planLimit', i) as number;

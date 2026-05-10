@@ -26,6 +26,7 @@ function createMockExecuteFunctions(overrides?: {
 	planLimit?: number;
 	staleThreshold?: string;
 	dryRun?: boolean;
+	workflow?: string;
 	promotePlanEnabled?: boolean;
 	promoteReadyEnabled?: boolean;
 	plannedLabel?: string;
@@ -39,6 +40,7 @@ function createMockExecuteFunctions(overrides?: {
 		planLimit: overrides?.planLimit ?? 3,
 		staleThreshold: overrides?.staleThreshold ?? '2h',
 		dryRun: overrides?.dryRun ?? false,
+		workflow: overrides?.workflow ?? 'full',
 		promotePlanEnabled: overrides?.promotePlanEnabled ?? true,
 		promoteReadyEnabled: overrides?.promoteReadyEnabled ?? false,
 		plannedLabel: overrides?.plannedLabel ?? 'planned',
@@ -308,5 +310,40 @@ describe('Ghpp.node', () => {
 		expect(callArgs[0]).toBe('demote');
 		expect(callArgs).not.toContain('--promote-plan-enabled=false');
 		expect(callArgs).not.toContain('--promote-plan-enabled');
+	});
+
+	it('should omit --workflow when workflow is full (default)', async () => {
+		setupExecFileSuccess();
+
+		const mockFns = createMockExecuteFunctions();
+		await ghpp.execute.call(mockFns);
+
+		const callArgs = mockedExecFile.mock.calls[0][1] as string[];
+		expect(callArgs).not.toContain('--workflow');
+	});
+
+	it('should include --workflow simple when workflow is simple for promote', async () => {
+		setupExecFileSuccess();
+
+		const mockFns = createMockExecuteFunctions({ operation: 'promote', workflow: 'simple' });
+		await ghpp.execute.call(mockFns);
+
+		const callArgs = mockedExecFile.mock.calls[0][1] as string[];
+		const idx = callArgs.indexOf('--workflow');
+		expect(idx).toBeGreaterThanOrEqual(0);
+		expect(callArgs[idx + 1]).toBe('simple');
+	});
+
+	it('should include --workflow simple when workflow is simple for demote', async () => {
+		setupExecFileSuccess();
+
+		const mockFns = createMockExecuteFunctions({ operation: 'demote', workflow: 'simple' });
+		await ghpp.execute.call(mockFns);
+
+		const callArgs = mockedExecFile.mock.calls[0][1] as string[];
+		expect(callArgs[0]).toBe('demote');
+		const idx = callArgs.indexOf('--workflow');
+		expect(idx).toBeGreaterThanOrEqual(0);
+		expect(callArgs[idx + 1]).toBe('simple');
 	});
 });

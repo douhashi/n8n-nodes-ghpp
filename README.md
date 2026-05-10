@@ -10,8 +10,20 @@
 ghpp automates status transitions in GitHub Projects V2 by promoting items through a defined flow:
 
 ```
-inbox -> plan -> ready -> doing
+full   : inbox -> plan -> ready -> doing
+simple : inbox -> doing
 ```
+
+### Workflow modes
+
+| Mode             | Transitions                             | Stale demote target |
+| ---------------- | --------------------------------------- | ------------------- |
+| `full` (default) | `inbox` -> `plan` -> `ready` -> `doing` | `doing` -> `ready`  |
+| `simple`         | `inbox` -> `doing`                      | `doing` -> `inbox`  |
+
+In `simple` mode, **Promote Plan Enabled** and **Promote Ready Enabled** are silently ignored, and stale `doing` items are demoted back to `inbox` instead of `ready`.
+
+### Full-mode phase constraints
 
 | Phase | Transition         | Constraint                                                                               |
 | ----- | ------------------ | ---------------------------------------------------------------------------------------- |
@@ -77,12 +89,13 @@ The credential is automatically verified against the GitHub API (`GET /user`) up
 
 ### Optional
 
-| Parameter                 | Type    | Default   | Description                                                                                           |
-| ------------------------- | ------- | --------- | ----------------------------------------------------------------------------------------------------- |
-| **Plan Limit**            | number  | `3`       | WIP cap for the Plan column. Existing items in Plan count against this limit; Ready/Doing do not.     |
-| **Promote Plan Enabled**  | boolean | `true`    | Enable automatic `inbox` -> `plan` promotion (promote only). Disable to manage Plan entries manually. |
-| **Promote Ready Enabled** | boolean | `false`   | Enable automatic `plan` -> `ready` promotion for items carrying the planned label (promote only)      |
-| **Planned Label**         | string  | `planned` | Label name that triggers the `plan` -> `ready` promotion (shown when Promote Ready Enabled is on)     |
+| Parameter                 | Type    | Default   | Description                                                                                                      |
+| ------------------------- | ------- | --------- | ---------------------------------------------------------------------------------------------------------------- |
+| **Workflow**              | options | `full`    | `full` runs the inbox -> plan -> ready -> doing flow. `simple` collapses it to inbox -> doing.                   |
+| **Plan Limit**            | number  | `3`       | WIP cap for the Plan column. Existing items in Plan count against this limit; Ready/Doing do not.                |
+| **Promote Plan Enabled**  | boolean | `true`    | Enable automatic `inbox` -> `plan` promotion (promote only, full mode). Disable to manage Plan entries manually. |
+| **Promote Ready Enabled** | boolean | `false`   | Enable automatic `plan` -> `ready` promotion for items carrying the planned label (promote only, full mode)      |
+| **Planned Label**         | string  | `planned` | Label name that triggers the `plan` -> `ready` promotion (shown when Promote Ready Enabled is on)                |
 
 ### Status Settings (collection)
 
